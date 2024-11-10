@@ -6,14 +6,29 @@ df = pd.read_csv('https://cdn.buenosaires.gob.ar/datosabiertos/datasets/secretar
 #print(df.describe())
 
 #dft = df.T
+dfg = pd.DataFrame(df.groupby(['entorno', 'etapa', 'monto_contrato']).size(), columns=['count'])
+print(dfg)
+'''[OUT]
+                                                       count
+entorno                etapa        monto_contrato
+Acumar                 Adjudicada   $126.012.191,03        1
+                       En ejecución $1.519.627.676,47      1
+                       Finalizada   $132.127.500,00        1
+                                    $153.208.672,00        1
+                                    $217.504.266,00        1
+...                                                      ...
+Área Ambiental Central Finalizada   $2.462.636,00          1
+                                    $26.938.294,00         1
+                                    $3.788.185,00          1
+                                    $36.942.632,00         1
+                                    $9.133.269,00          1
+'''
 
-#print(dft)
-
-dfnew = df.copy()
+#dfnew = df.copy()
 #print(f'luego de la copia: {dfnew}')
 
 #dfnew = dfnew.fillna(value=5) #How=any (si hay un valor vacío para cuaquiera de las columnas, se rellena con 5)
-dfnew = dfnew.dropna(axis=1, how='all') #How=all (si hay un valor vacío para todas las columnas, se elimina la fila)
+#dfnew = dfnew.dropna(axis=1, how='all') #How=all (si hay un valor vacío para todas las columnas, se elimina la fila)
 #print(f'luego de dropna: {dfnew}')
 #def leer_dataset(path): 
 #   return pd.read_csv(path, sep=";", index_col=0, encoding='latin-1') #Solucion de encoding de Maxi para la lectura de bases de datos
@@ -77,3 +92,4 @@ Acumar                             $126.012.191,03
 Tribunal Superior de Justicia    $1.800.113.121,00
 Name: monto_contrato, Length: 1665, dtype: object'''
 
+#print(dfnew['monto_contrato']) #Tipos de datos de las columnas
