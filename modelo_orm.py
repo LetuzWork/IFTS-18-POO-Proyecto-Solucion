@@ -1,28 +1,15 @@
 import sqlite3 as sql3
-import pymysql
 from peewee import *
 
+orm_db = SqliteDatabase('./Final-POO/obras_urbanas.db', pragmas={
+    'journal_mode': 'wal'}) #Si existe se conecta a la bbdd y sino crea la conexion (el archivo) string de conexión
+orm_db.connect() #se crea la instancia de conexion
 
-conn = sql3.connect("database.db")
-cursor = conn.cursor()
-
-""" orm_db = SqliteDatabase('/Final-POO/obras_urbanas.db', pragmas={
-    'journal_mode': 'wal'})
-
-try:
-    orm_db.connect()
-except OperationalError as e:
-    print("Se ha generado un error en la conexion a la BD.", e)
-    exit()
-    
-     """
-
-
-class BaseModel(Model):
+class BaseModel(Model): 
     """El modelo base que usará nuestra base de datos Sqlite."""
     class Meta:
         #Este modelo ORM usa la base de datos "obras_urbanas.db".
-        database = conn
+        database = orm_db
 
 class TipoObra(BaseModel):
     """Modelo de la tabla TipoObra."""
@@ -51,12 +38,21 @@ class Etapa(BaseModel):
         #Nombre de la tabla. En plural
         table_name = 'etapas'
         
+class Barrio(BaseModel):
+    """Modelo de la tabla Barrio."""
+    id = IntegerField(primary_key=True)
+    nombre = CharField(max_length=80)
+    
+    class Meta:
+        #Nombre de la tabla. En plural
+        table_name = 'barrios'
+        
 class Obra(BaseModel): #Nombre de la clase en singular
     """Modelo de la tabla Obras."""
-    id = IntegerField(primary_key=True)
+    id = IntegerField(primary_key=True, index=True)
     tipo_obra = ForeignKeyField(TipoObra, backref='tipoObras')
     area_responsable = ForeignKeyField(AreaResponsable, backref='areaResponsable')
-    barrio = CharField(max_length=80)
+    barrio = ForeignKeyField(Barrio, backref='barrios')
     destacada = BooleanField()
     fecha_inicio = DateField()
     fecha_fin_inicial = DateField()
@@ -70,4 +66,11 @@ class Obra(BaseModel): #Nombre de la clase en singular
         #Nombre de la tabla. En plural
         table_name = 'obras'
 
+if __name__ == '__main__':
+
+    orm_db.create_tables([TipoObra, AreaResponsable, Etapa, Obra]) #Se crean las tablas en la base de datos
+
+# orm_db.commit()
+
+#return pd.read_csv(path, sep=";", index_col=0, encoding='latin-1') Solucion de encoding de Maxi para la lectura de bases de datos
 
