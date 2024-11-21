@@ -4,14 +4,8 @@ from datetime import timedelta
 db = SqliteDatabase('obras_urbanas.db', pragmas ={'journal_mode' : 'wal'})
 
 """ orm_db = SqliteDatabase('/Final-POO/obras_urbanas.db', pragmas={
-    'journal_mode': 'wal'})
-
-try:
-    orm_db.connect()
-except OperationalError as e:
-    print("Se ha generado un error en la conexion a la BD.", e)
-    exit()
-    """
+    'journal_mode': 'wal'}) #Si existe se conecta a la bbdd y sino crea la conexion (el archivo) string de conexión
+    orm_db.connect() #se crea la instancia de conexion """
 
 class BaseModel(Model):
     """El modelo base que usará nuestra base de datos Sqlite."""
@@ -172,3 +166,7 @@ def create_tables():
 if __name__ == '__main__':
     create_tables()
     print("Tablas creadas exitosamente.")
+
+# orm_db.commit()
+
+#return pd.read_csv(path, sep=";", index_col=0, encoding='latin-1') Solucion de encoding de Maxi para la lectura de bases de datos
