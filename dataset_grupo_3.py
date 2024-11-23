@@ -15,7 +15,7 @@ def limpiar_datos(df):
     df['plazo_meses'] = pd.to_numeric(df['plazo_meses'], errors='coerce')
     df['plazo_meses'] = df['plazo_meses'].fillna(0).astype(int)
 
-    # Reemplazo los valores nulos en las columnas ['plazo_meses', 'porcentaje_avance'] con la mediana 
+    # Reemplazo los valores nulos en la columna ['plazo_meses'] con la mediana 
     df['plazo_meses'] = df['plazo_meses'].fillna(df['plazo_meses'].median())
 
     def limpiar_porcentaje(valor):
