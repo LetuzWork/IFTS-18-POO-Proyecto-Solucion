@@ -25,6 +25,7 @@ class Empresa(BaseModel):
 class Barrio(BaseModel):
     id = AutoField()
     nombre = CharField(max_length=100)
+    comuna = IntegerField(null=True)
 
     class Meta:
         #Nombre de la tabla. En plural
@@ -96,8 +97,12 @@ class Obra(BaseModel):
         #Nombre de la tabla. En plural
         table_name = 'obras'
 
-    def nuevo_proyecto(self):
+    def nuevo_proyecto(self, tipo_obra, area_responsable, barrio):
         self.etapa, _ = Etapa.get_or_create(nombre="Proyecto")
+        self.tipo_obra = tipo_obra
+        self.area_responsable = area_responsable
+        self.barrio = barrio
+
         self.save()
 
     def iniciar_contratacion(self, tipo_contratacion, nro_contratacion):
