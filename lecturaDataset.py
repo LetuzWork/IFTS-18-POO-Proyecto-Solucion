@@ -24,7 +24,7 @@ Acumar                 Adjudicada   $126.012.191,03        1
                                     $9.133.269,00          1
 '''
 
-#dfnew = df.copy()
+dfnew = df.copy()
 #print(f'luego de la copia: {dfnew}')
 
 #dfnew = dfnew.fillna(value=5) #How=any (si hay un valor vacío para cuaquiera de las columnas, se rellena con 5)
@@ -38,23 +38,23 @@ Acumar                 Adjudicada   $126.012.191,03        1
 #print(dfnew['etapa'].value_counts()) #Cantidad de valores no nulos en la columna etapa
 
 '''[OUT]
-Finalizada                1471
-En obra                     65
+Finalizada                1471 Finalizada
+En obra                     65 
 En ejecución                48
-En licitación               21
+En licitación               21 
 Desestimada                 17
 Rescisión                    7
-Adjudicada                   7
-Paralizada                   6
-En armado de pliegos         6
-En Ejecución                 4
-Neutralizada                 3
-Finalizada/desestimada       3
-En Obra                      2
-En proyecto                  2
-En curso                     1
-Proyecto finalizado          1
-Anteproyecto                 1
+Adjudicada                   7 Adjudicada
+Paralizada                   6 Rescindida
+En armado de pliegos         6 Proyecto
+En Ejecución                 4 En ejecución
+Neutralizada                 3 Rescindida
+Finalizada/desestimada       3 Finalizada
+En Obra                      2 En ejecución
+En proyecto                  2 Proyecto
+En curso                     1 En ejecución
+Proyecto finalizado          1 Finalizada
+Anteproyecto                 1 Proyecto
 Name: count, dtype: int64'''
 
 #print(dfnew['area_responsable'].value_counts()) #Cantidad de valores no nulos en la columna area_responsable
@@ -92,4 +92,13 @@ Acumar                             $126.012.191,03
 Tribunal Superior de Justicia    $1.800.113.121,00
 Name: monto_contrato, Length: 1665, dtype: object'''
 
+
+
 #print(dfnew['monto_contrato']) #Tipos de datos de las columnas
+
+[
+        "mano_obra",
+        "expediente-numero",
+        "financiamiento",
+        "nro_contratacion"
+    ]
