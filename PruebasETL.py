@@ -53,15 +53,30 @@ print(dfmycols.head(15))
 print(dfmycols['financiamiento'].unique())
 
 # Obtener las fuentes de financiamiento únicas, excluyendo 'No especificado'
-fuentes_financiamiento = dfmycols['financiamiento'].unique().tolist()
-fuentes_financiamiento.remove('No especificado')
+ffinanciamiento = dfmycols['financiamiento'].unique().tolist()
+ffinanciamiento.remove('No especificado')
 
 # Asignar de manera aleatoria una fuente de financiamiento a los valores 'No especificado'
 dfmycols['financiamiento'] = dfmycols['financiamiento'].apply(
-    lambda x: random.choice(fuentes_financiamiento) if x == 'No especificado' else x
+    lambda x: random.choice(ffinanciamiento) if x == 'No especificado' else x
 )
-
+# Asigno de manera aleatoria valores a la columna 'mano_obra' que sean diferentes de '0'
 dfmycols['mano_obra'] = dfmycols['mano_obra'].apply(
     lambda x: random.randint(12, 79) if x == '0' else x
 )
 print(dfmycols.head())
+
+# Combinar los valores limpios de dfmycols con dfOK
+df_combined = dfOK.copy()
+for column in dfmycols.columns:
+    df_combined[column] = dfmycols[column]
+
+    # Pasar valores únicos de financiamiento a una lista
+    financiamiento_unicos = dfmycols['financiamiento'].unique().tolist()
+    print(financiamiento_unicos)
+
+for elem in financiamiento_unicos:
+    print(elem)
+
+
+df_combined.to_csv('camposdeinteresMech.csv', sep=';', encoding='latin-1')
