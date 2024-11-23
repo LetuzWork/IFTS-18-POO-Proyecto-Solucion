@@ -1,5 +1,6 @@
 import pandas as pd
 from peewee import *
+import random
 
 '''df = pd.read_csv('https://cdn.buenosaires.gob.ar/datosabiertos/datasets/secretaria-general-y-relaciones-internacionales/ba-obras/observatorio-de-obras-urbanas.csv', sep=";", index_col=0, encoding='latin-1')
 
@@ -25,6 +26,42 @@ for column in dfmycols.columns:
 
 dfmycols = dfmycols.fillna({'financiamiento': 'No especificado', 'mano_obra': '0'})
 
+# Normalizar los valores de la columna 'financiamiento'
+dfmycols['financiamiento'] = dfmycols['financiamiento'].replace({
+    'No especificado': 'No especificado',
+    'Fuente 11': 'Nación / Fuente 11',
+    'Fuente 14': 'Nación / Fuente 14',
+    'FODUS': 'GCBA / FoDUS',
+    'GCBA': 'GCBA',
+    'F11': 'Nación / Fuente 11',
+    'CAF-Nación-GCBA': 'Mixto / CAF / Nación / GCBA',
+    'Nación-GCBA': 'Mixto / Nación / GCBA',
+    'Préstamo BIRF 8706-AR': 'Mixto / Nación / Préstamo BIRF 8706-AR',
+    'Préstamo BID AR-L1260': 'Mixto Nación / Préstamo BID AR-L1260',
+    'PPI': 'Internacional',
+})
+exp = dfmycols['expediente-numero'].dropna().unique() # Extraer los valores únicos de la columna 'expediente-numero'
+# Normalizar los valores de la columna 'expediente-numero'
+dfmycols['expediente-numero'] = dfmycols.apply(
+    lambda row: row['nro_contratacion'] if pd.isna(row['expediente-numero']) else row['expediente-numero'],
+    axis=1
+)
+dfmycols['expediente-numero'] = dfmycols['expediente-numero'].str.replace(r'[/?.]', '-', regex=True)
+print(exp)
+print(dfmycols.head(15))
 
-print(dfmycols.head(), dfmycols.shape)
+print(dfmycols['financiamiento'].unique())
 
+# Obtener las fuentes de financiamiento únicas, excluyendo 'No especificado'
+fuentes_financiamiento = dfmycols['financiamiento'].unique().tolist()
+fuentes_financiamiento.remove('No especificado')
+
+# Asignar de manera aleatoria una fuente de financiamiento a los valores 'No especificado'
+dfmycols['financiamiento'] = dfmycols['financiamiento'].apply(
+    lambda x: random.choice(fuentes_financiamiento) if x == 'No especificado' else x
+)
+
+dfmycols['mano_obra'] = dfmycols['mano_obra'].apply(
+    lambda x: random.randint(12, 79) if x == '0' else x
+)
+print(dfmycols.head())
