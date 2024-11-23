@@ -128,25 +128,25 @@ df["contratacion_tipo"] = df["contratacion_tipo"].str.replace('-', '') # Removie
 
 ### 'descripcion', 'barrio', 'direccion' ###  Eliminados espacios inncesarios y convertidos todos a minusculas
 
-df['descripcion'] = df['descripcion'].fillna('Indeterminado').str.strip().str.lower()
+dfdieCols['descripcion'] = dfdieCols['descripcion'].fillna('Indeterminado').str.strip().str.lower()
 
-df['barrio'] = df['barrio'].fillna('Indeterminado').str.strip().str.lower()
+dfdieCols['barrio'] = dfdieCols['barrio'].fillna('Indeterminado').str.strip().str.lower()
 
-df['direccion'] = df['direccion'].fillna('Indeterminado').str.strip().str.lower()
+dfdieCols['direccion'] = dfdieCols['direccion'].fillna('Indeterminado').str.strip().str.lower()
 
 ### monto_contrato ### 
-df['monto_contrato'] = df['monto_contrato'].str.replace(r'[$.]', '', regex=True) #Reemplaza las signos '$' y '.' por vacios
+dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(r'[$.]', '', regex=True) #Reemplaza las signos '$' y '.' por vacios
 
-df['monto_contrato'] = df['monto_contrato'].str.replace(r'(?<=\d),(?=\d{3})', '', regex=True, n=2) #Elimina las comas que son separadores de miles y elimina solo las 2 primeras coincidencias
+dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(r'(?<=\d),(?=\d{3})', '', regex=True, n=2) #Elimina las comas que son separadores de miles y elimina solo las 2 primeras coincidencias
 
-df['monto_contrato'] = df['monto_contrato'].str.replace(',', '.') # Reemplaza las comas por puntos
+dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(',', '.') # Reemplaza las comas por puntos
 
-df['monto_contrato'] = df['monto_contrato'].str.replace(r'\s*\(.*?\)', '', regex=True) # Borra los datos que estan entre parentesis
+dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(r'\s*\(.*?\)', '', regex=True) # Borra los datos que estan entre parentesis
 
-df['monto_contrato'] = df['monto_contrato'].fillna('0.00').str.strip().str.extract(r'[-+]?\$?([\d.,]+)').replace({',': ''}, regex=True).astype(float) # Extrae los primeros datos numericos de las oraciones y los convierte en datos validos
+dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].fillna('0.00').str.strip().str.extract(r'[-+]?\$?([\d.,]+)').replace({',': ''}, regex=True).astype(float) # Extrae los primeros datos numericos de las oraciones y los convierte en datos validos
 
 
 ### comuna ### Convertido a numeros 
-df['comuna'] = pd.to_numeric(df['comuna'], errors= 'coerce').fillna(0).astype(int)
+dfdieCols['comuna'] = pd.to_numeric(dfdieCols['comuna'], errors= 'coerce').fillna(0).astype(int)
 
 '''

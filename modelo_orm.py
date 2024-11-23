@@ -25,6 +25,7 @@ class Empresa(BaseModel):
 class Barrio(BaseModel):
     id = AutoField()
     nombre = CharField(max_length=100)
+    comuna = IntegerField()
 
     class Meta:
         #Nombre de la tabla. En plural
