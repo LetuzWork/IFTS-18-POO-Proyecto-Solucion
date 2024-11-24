@@ -2,17 +2,12 @@ from peewee import *
 import pandas as pd
 from abc import ABCMeta
 import modelo_orm
-
-
-sqlite_db = SqliteDatabase('./obras_urbanas.db', pragmas={'journal_mode': 'wal'})
-
+db = SqliteDatabase('obras_urbanas.db', pragmas ={'journal_mode' : 'wal'})
 class GestionarObra(metaclass=ABCMeta):
     @classmethod
     def extraer_datos(cls):
-        obras_csv = './observatorio-de-obras-urbanas.csv'
-
         try:
-            df = pd.read_csv(obras_csv, sep=';', decimal=',', encoding='latin1')
+            df = pd.read_csv('./observatorio-de-obras-urbanas.csv', sep=';', decimal=',', encoding='latin1', index_col=None)
 
             return df
         except FileNotFoundError as e:
@@ -33,13 +28,14 @@ class GestionarObra(metaclass=ABCMeta):
     def mapear_orm(cls):
         db = cls.conectar_db()
         try:
-            sqlite_db.create_tables([modelo_orm.Etapa, modelo_orm.TipoObra, modelo_orm.AreaResponsable, modelo_orm.Comuna, modelo_orm.Barrio, modelo_orm.Empresa, modelo_orm.TipoContratacion, modelo_orm.FuenteFinanciamiento, modelo_orm.Obra])
+            db.create_tables([modelo_orm.AreaResponsable, modelo_orm.Barrio, modelo_orm.Empresa, modelo_orm.Etapa,  modelo_orm.FuenteFinanciamiento, modelo_orm.TipoContratacion, modelo_orm.TipoObra, modelo_orm.Obra])
             print('Se han creado correctamente las tablas')
         except OperationalError as e:
             print(f'Se ha generado un error al crear las tablas: {e}')
             exit()
         sqlite_db.close()
     
+    # El codigo final del archivo limpieza se deberia implementar aca
     @classmethod
     def limpiar_datos(cls):
         df = cls.extraer_datos()
@@ -61,6 +57,7 @@ class GestionarObra(metaclass=ABCMeta):
 
         return df
     
+    #parcialmente laburado en archivo limpieza
     @classmethod
     def cargar_datos(cls):
         df = cls.limpiar_datos()
@@ -75,7 +72,9 @@ class GestionarObra(metaclass=ABCMeta):
         empresaUnique = list(df['licitacion_oferta_empresa'].unique())
         contratacionUnique = list(df['contratacion_tipo'].unique())
         financiamientoUnique = list(df['financiamiento'].unique())
+        // generamos esto con la funcion la funcion de generar unicos en archivo limpieza
         
+        // se puede crear una funcion para reducir la repeticion procurando
         # Cargamos los datos unicos en sus respectivas tablas y los persistimos en el modelo ORM
         for elem in etapaUnique:
             try:
