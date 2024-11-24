@@ -1,8 +1,8 @@
 import pandas as pd
 from peewee import *
 import random
+from fuzzywuzzy import process 
 
-from modelo_orm import Barrio
 
 '''df = pd.read_csv('https://cdn.buenosaires.gob.ar/datosabiertos/datasets/secretaria-general-y-relaciones-internacionales/ba-obras/observatorio-de-obras-urbanas.csv', sep=";", index_col=0, encoding='latin-1')
 
@@ -67,29 +67,20 @@ dfmechCols['financiamiento'] = dfmechCols['financiamiento'].apply(
 dfmechCols['mano_obra'] = dfmechCols['mano_obra'].apply(
     lambda x: random.randint(12, 79) if x == '0' else x
 )
-#print(dfmechCols.head())
-
 # Combinar los valores limpios de dfmechCols con dfOK
 dfdieCols = dfOK[dieCols]
 df_combined = dfOK.copy()
 
-'''dfdieCols.dropna(how='all', inplace=True)
-
-dfdieCols['descripcion'] = dfdieCols['descripcion'].fillna('Indeterminado').str.strip().str.lower()
-
-dfdieCols['barrio'] = dfdieCols['barrio'].fillna('Indeterminado').str.strip().str.lower()
-
-dfdieCols['direccion'] = dfdieCols['direccion'].fillna('Indeterminado').str.strip().str.lower()
-'''
+dfdieCols['barrio'].fillna('Múltiples Barrios', inplace=True)
 dfbarrio = dfdieCols['barrio'].unique()
 dfcomuna = dfdieCols['comuna'].unique()
 
 dfbarriocomuna = dfdieCols[['barrio', 'comuna']].dropna().drop_duplicates()
 # Contar los valores únicos en cada columna
 dfbarriocomuna = dfdieCols[['barrio', 'comuna']].dropna().drop_duplicates().groupby(['barrio', 'comuna']).size().reset_index(name='count')
-print(dfbarriocomuna)
+#print(dfbarriocomuna)
 
-C0 = [{'comuna_num': 0}, {'barrios':['Múltiples barrios']}]
+C0 = [{'comuna_num': 0}, {'barrios':['Múltiples Barrios']}]
 C1 = [{'comuna_num': 1}, {'barrios': ['Retiro', 'San Nicolás', 'Puerto Madero', 'San Telmo', 'Montserrat', 'Constitución']}]
 C2 = [{'comuna_num': 2}, {'barrios': ['Recoleta']}]
 C3 = [{'comuna_num': 3}, {'barrios': ['Balvanera', 'San Cristóbal']}]
@@ -107,9 +98,39 @@ C14 = [{'comuna_num': 14}, {'barrios': ['Palermo']}]
 C15 = [{'comuna_num': 15}, {'barrios': ['Chacarita', 'Villa Crespo', 'La Paternal', 'Villa Ortúzar', 'Agronomía', 'Parque Chas']}]
 
 lsComunas = [C0, C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15]
+# Crear una lista de todos los barrios dentro de lsComunas, sin importar las comunas
+all_barrios = []
+for comuna in lsComunas:
+    barrios = comuna[1]['barrios']
+    all_barrios.extend(barrios)
 
-dfRari = pd.DataFrame(lsComunas, columns=['barrios', 'comuna_num'])
-# Crear un DataFrame con las comunas y sus barrios correspondientes
+dfdieCols['barrio'] = dfdieCols['barrio'].str.replace('/', ',') # Reemplaza las comas por puntos
+dfdieCols['barrio'] = dfdieCols['barrio'].str.replace('-', ',') # Reemplaza las comas por puntos
+
+barriols = dfdieCols['barrio'].unique().tolist()
+
+for barrio in barriols:
+    b, percent = process.extractOne(barrio, all_barrios)
+    x = b if percent > 85 else "Múltiples Barrios"
+    #print (f"{barrio} -> {x} ({percent}%)")
+    dfdieCols['barrio'] = dfdieCols['barrio'].replace(barrio, x)
+
+dfdieCols['barrio'] = dfdieCols['barrio'].replace({'NuÃ±ez': 'Núñez',
+                                                    'Agronomí\xada': 'Agronomía',
+                                                    'San Nicolas': 'San Nicolás'
+                                                     })
+
+
+
+# Asignar de manera aleatoria un barrio a los valores cuyo dfdieCols['barrio2'].value_counts() sea 1:
+regcount = dfdieCols['barrio'].value_counts()
+regval = regcount[regcount == 1].index.tolist()
+
+dfdieCols['barrio2'] = dfdieCols['barrio'].apply(
+    lambda x: random.choice(all_barrios) if x in regval else x
+)
+dfdieCols['barrio'] = dfdieCols['barrio2']
+
 comunas_data = []
 for comuna in lsComunas:
     comuna_num = comuna[0]['comuna_num']
@@ -117,63 +138,31 @@ for comuna in lsComunas:
     for barrio in barrios:
         comunas_data.append({'comuna': comuna_num, 'barrio': barrio})
 
-df_comunas = pd.DataFrame(comunas_data)
+# Crear un diccionario para mapear barrios a comunas
+barrio_to_comuna = {item['barrio']: item['comuna'] for item in comunas_data}
 
-# Normalizar los valores de la columna 'barrio' y 'comuna' en dfdieCols
-dfdieCols['barrio'] = dfdieCols['barrio'].str.strip().str.lower()
-dfdieCols['comuna'] = dfdieCols['comuna'].fillna(0)
-# Reemplazar valores similares a "monsterrat" por "Montserrat"
-lsBarrio = dfdieCols['barrio'].unique().tolist()
-print(lsBarrio)
+# Reemplazar los valores de 'comuna' en dfdieCols con el número de comuna correspondiente
+dfdieCols['comuna'] = dfdieCols['barrio'].map(barrio_to_comuna).fillna(0)
 
-# Reemplazar los valores de la columna 'barrio' con sus correspondientes comunas
-barrio_to_comuna = {
-    'villa urquiza': 12, 'montserrat': 1, 'san nicolás': 1, 'villa lugano': 8, 'villa soldati': 8, 'puerto madero': 1, 'recoleta': 2, 'liniers': 9, 'villa riachuelo': 8, 'coghlan': 12, 'la boca': 4, 'belgrano': 13, 'parque patricios': 4, 'barracas': 4, 'palermo': 14, 'saavedra': 12, 'villa del parque': 11, 'almagro': 5, 'villa devoto': 11, 'villa pueyrredon': 12, 'agronomía': 15, 'san cristóbal': 3, 'balvanera': 3, 'flores': 7, 'villa luro': 10, 'chacarita': 15, 'parque avellaneda': 9, 'mataderos': 9, 'paternal': 15, 'caballito': 6, 'monte castro': 10, 'floresta': 10, 'parque chacabuco': 7, 'constitución': 1, 'nueva pompeya': 4, 'villa gral. mitre': 11, 'boedo': 5, 'nuñez': 13, 'constitucion': 1, 'villa crespo': 15, 'colegiales': 13, 'retiro': 1, 'san telmo': 1, 'vélez sarsfield': 10, 'villa real': 10, 'villa santa rita': 11, 'versalles': 10, 'parque chas': 15, 'villa 6 - barrio cildañez': 0, 'villa ortuzar': 15, 'nuã±ez': 13, 'villa ortúzar': 15, 'monserrat': 1, 'marcos paz': 0, 'san cristobal': 3, 'cuenca matanza- riachuelo': 0, 'barracas y nueva pompeya': 0, 'la boca y san telmo': 0, 'san nicolas': 1, 'lugano': 8, 'boca': 4, 'territorio caba': 0, 'recoleta, palermo y retiro': 0, 'san nicolas, monserrat, san telmo y la boca': 0, 'p. chacabuco/palermo': 0, 'p. chacabuco/agronomía/ palermo': 0, 'devoto': 11, 'flores, floresta': 0, 'mataderos, villa riachuelo, barracas, nueva pompeya, villa lugano y la boca': 0, '.': 0, 'velez sarsfield': 10, 'villa soldati, flores, floresta, parque avellaneda, mataderos, villa lugano, villa riachuelo, villa lugano': 0, 'villa lugano, parque avellaneda y flores': 0, 'villa soldati y saavedra': 0, 'villa soldati, flores, floresta, parque avellaneda, mataderos, villa lugano, villa riachuelo, villa lugano, liniers, parque chacabuco, caballito, boedo, san cristobal, constitución, boca, barracas, parque patricios  y nueva pompeya': 0, 'nuñez y saavedra': 0, 'yerbal - villa luro - velez sarfield floresta - monte castro - villa del parque - villa santa rita - paternal - villa crespo - villa urquiza': 0
-}
+print(dfdieCols[['barrio', 'comuna']])
+#print(sorted(dfdieCols['barrio'].unique()))
+#print(dfdieCols['barrio'].value_counts())
 
-dfdieCols['comuna'] = dfdieCols['barrio'].map(barrio_to_comuna).fillna(dfdieCols['comuna'])
-
-
-# Verificar los cambios
-print(dfdieCols[['barrio', 'comuna']].drop_duplicates())
-
-
-       #dfbarriocomuna.loc[dfbarriocomuna['barrio'] == barrio, 'comuna'] = comuna_num
-
-#dfbarriocomuna.to_csv('barrioComuna.csv', sep=';', encoding='latin-1')
+dfbarriocomuna.to_csv('barrioComuna.csv', sep=';', encoding='latin-1')
 
 # 48 barrios en total
 # 15 comunas en total
 
-### monto_contrato ### 
-'''dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(r'[$.]', '', regex=True) #Reemplaza las signos '$' y '.' por vacios
+for column in dfmechCols.columns:
+    df_combined[column] = dfmechCols[column]
 
-dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(r'(?<=\d),(?=\d{3})', '', regex=True, n=2) #Elimina las comas que son separadores de miles y elimina solo las 2 primeras coincidencias
+for column in dfdieCols.columns:
+    df_combined[column] = dfdieCols[column]
 
-dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(',', '.') # Reemplaza las comas por puntos
 
-dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(r'\s*\(.*?\)', '', regex=True) # Borra los datos que estan entre parentesis
-'''
-#dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].fillna('0.00').str.strip().str.extract(r'[-+]?\$?([\d.,]+)').replace({',': ''}, regex=True).astype(float) # Extrae los primeros datos numericos de las oraciones y los convierte en datos validos
 
-#Se podrá hacer en una línea:
-#dfdieCols['monto_contrato'] = dfdieCols['monto_contrato'].str.replace(r'[$.]', '', regex=True).str.replace(r'(?<=\d),(?=\d{3})', '', regex=True, n=2).str.replace(',', '.').str.replace(r'\s*\(.*?\)', '', regex=True).fillna('0.00').str.strip().str.extract(r'[-+]?\$?([\d.,]+)').replace({',': ''}, regex=True).astype(float)
 
-### comuna ### Convertido a numeros 
-#dfdieCols['comuna'] = pd.to_numeric(dfdieCols['comuna'], errors= 'coerce').fillna(0).astype(int)
-
-#for column in dfdieCols.columns:
-#    unique_values = dfdieCols[column].unique()
-    #print(f"Los valores unicos de la columna : '{column}': {unique_values}")
-
-#dfdieCols = dfdieCols.fillna({'comuna': 'No especificado', 'barrio': 'No especificado', 'direccion': 'No especificado'})
-#for column in dfmechCols.columns:
-#    df_combined[column] = dfmechCols[column]
-
-#for column in dfdieCols.columns:
-#    df_combined[column] = dfdieCols[column]
-
-#df_combined.to_csv('camposdeinteresMechDie.csv', sep=';', encoding='latin-1')
+df_combined.to_csv('camposdeinteresMechNormal.csv', sep=';', encoding='latin-1')
 
 #df_combined.to_csv('camposdeinteresMech.csv', sep=';', encoding='latin-1')
 
