@@ -1,96 +1,50 @@
-;barrio;comuna;count
-0;.;.;1
-1;Agronomí­a;15;1
-2;Almagro;5;1
-3;Balvanera;1;1
-4;Balvanera;3;1
-5;Barracas;4;1
-6;Barracas y Nueva Pompeya;4;1
-7;Belgrano;13;1
-8;Boca;4;1
-9;Boedo;5;1
-10;Caballito;15;1
-11;Caballito;6;1
-12;Caballito;7;1
-13;Chacarita;1;1
-14;Chacarita;15;1
-15;Coghlan;12;1
-16;Colegiales;13;1
-17;Constitucion;1;1
-18;Constitución;1;1
-19;Cuenca Matanza- Riachuelo;4;1
-20;Devoto;11;1
-21;Flores;7;1
-22;Flores, Floresta;7 y 9;1
-23;Floresta;10;1
-24;La Boca;1;1
-25;La Boca;4;1
-26;La Boca ;4;1
-27;La Boca y San Telmo;4 y 1;1
-28;Liniers;10;1
-29;Liniers;9;1
-30;Lugano;8;1
-31;Mataderos;10;1
-32;Mataderos;7;1
-33;Mataderos;9;1
-34;Mataderos, Villa Riachuelo, Barracas, Nueva Pompeya, Villa Lugano y La Boca;4, 8 y 9;1
-35;Monserrat;1;1
-36;Monte Castro;10;1
-37;Montserrat;1;1
-38;Múltiples Barrios;1;1
-39;Nueva Pompeya;4;1
-40;NuÃ±ez;13;1
-41;Nuñez;13;1
-42;Nuñez y Saavedra;12 y 13;1
-43;P. Chacabuco/Agronomía/ Palermo;7, 15 y 14;1
-44;P. Chacabuco/Palermo;7 y 14;1
-45;Palermo;1;1
-46;Palermo;14;1
-47;Parque Avellaneda;9;1
-48;Parque Chacabuco;6;1
-49;Parque Chacabuco;7;1
-50;Parque Chas;15;1
-51;Parque Patricios;4;1
-52;Paternal;15;1
-53;Puerto Madero;1;1
-54;Puerto Madero ;1;1
-55;Recoleta;2;1
-56;Recoleta, Palermo y Retiro;14, 2 , 1 ;1
-57;Retiro;1;1
-58;Saavedra;12;1
-59;San Cristobal;3;1
-60;San Cristóbal;3;1
-61;San Nicolas;1;1
-62;San Nicolas, Monserrat, San Telmo y La Boca ;1 y 4;1
-63;San Nicolás;1;1
-64;San Telmo;1;1
-65;San telmo;1;1
-66;Territorio CABA;1 a 15;1
-67;Velez Sarsfield;10;1
-68;Versalles;10;1
-69;Villa 6 - Barrio Cildañez;8;1
-70;Villa Crespo;15;1
-71;Villa Del Parque;11;1
-72;Villa Devoto;11;1
-73;Villa Gral. Mitre;11;1
-74;Villa Lugano;10;1
-75;Villa Lugano;8;1
-76;Villa Lugano, Parque Avellaneda y Flores;7, 8 y 9;1
-77;Villa Luro;10;1
-78;Villa Ortuzar;13;1
-79;Villa Ortuzar;15;1
-80;Villa Ortuzar;18;1
-81;Villa Ortúzar;15;1
-82;Villa Pueyrredon;12;1
-83;Villa Real;10;1
-84;Villa Riachuelo;8;1
-85;Villa Santa Rita;11;1
-86;Villa Soldati;8;1
-87;Villa Soldati y Saavedra;8 y 12;1
-88;Villa Soldati, Flores, Floresta, Parque Avellaneda, Mataderos, Villa Lugano, Villa Riachuelo, Villa Lugano;7, 8 y 9;1
-89;Villa Soldati, Flores, Floresta, Parque Avellaneda, Mataderos, Villa Lugano, Villa Riachuelo, Villa Lugano, Liniers, Parque Chacabuco, Caballito, Boedo, San Cristobal, Constitución, Boca, Barracas, Parque Patricios  y Nueva Pompeya;1, 2, 3, 4, 5, 6, 7, 8, 9 y 10;1
-90;Villa Urquiza;12;1
-91;Villa del Parque;11;1
-92;Vélez Sarsfield;10;1
-93;YERBAL - VILLA LURO - VELEZ SARFIELD FLORESTA - MONTE CASTRO - VILLA DEL PARQUE - VILLA SANTA RITA - PATERNAL - VILLA CRESPO - VILLA URQUIZA;10/11/12/13/14/15;1
-94;villa urquiza;12;1
+;comuna;barrio
+0;0;Múltiples Barrios
+1;1;Retiro
+2;1;San Nicolás
+3;1;Puerto Madero
+4;1;San Telmo
+5;1;Montserrat
+6;1;Constitución
+7;2;Recoleta
+8;3;Balvanera
+9;3;San Cristóbal
+10;4;La Boca
+11;4;Barracas
+12;4;Parque Patricios
+13;4;Nueva Pompeya
+14;5;Almagro
+15;5;Boedo
+16;6;Caballito
+17;7;Flores
+18;7;Parque Chacabuco
+19;8;Villa Soldati
+20;8;Villa Riachuelo
+21;8;Villa Lugano
+22;9;Liniers
+23;9;Mataderos
+24;9;Parque Avellaneda
+25;10;Villa Real
+26;10;Monte Castro
+27;10;Versalles
+28;10;Floresta
+29;10;Vélez Sarfield
+30;10;Villa Luro
+31;11;Villa General Mitre
+32;11;Villa Devoto
+33;11;Villa del Parque
+34;11;Villa Santa Rita
+35;12;Coghlan
+36;12;Saavedra
+37;12;Villa Urquiza
+38;12;Villa Pueyrredón
+39;13;Núñez
+40;13;Belgrano
+41;13;Colegiales
+42;14;Palermo
+43;15;Chacarita
+44;15;Villa Crespo
+45;15;La Paternal
+46;15;Villa Ortúzar
+47;15;Agronomía
+48;15;Parque Chas

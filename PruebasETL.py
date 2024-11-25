@@ -140,6 +140,8 @@ for comuna in lsComunas:
 
 # Crear un diccionario para mapear barrios a comunas
 barrio_to_comuna = {item['barrio']: item['comuna'] for item in comunas_data}
+# Crear un DataFrame a partir de los datos de comunas y barrios
+df_comunas_barrios = pd.DataFrame(comunas_data, columns=['comuna', 'barrio'])
 
 # Reemplazar los valores de 'comuna' en dfdieCols con el número de comuna correspondiente
 dfdieCols['comuna'] = dfdieCols['barrio'].map(barrio_to_comuna).fillna(0)
@@ -160,7 +162,7 @@ for column in dfdieCols.columns:
     df_combined[column] = dfdieCols[column]
 
 
-
+df_comunas_barrios.to_csv('barrioComuna.csv', sep=';', encoding='latin-1')
 
 df_combined.to_csv('camposdeinteresMechNormal.csv', sep=';', encoding='latin-1')
 
