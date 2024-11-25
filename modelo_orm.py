@@ -75,7 +75,6 @@ class Etapa(BaseModel):
         table_name = 'etapas'
 
 class Obra(BaseModel):
-    """Modelo de la tabla Obras."""
     id = AutoField()
     tipo_obra = ForeignKeyField(TipoObra, backref='obras')
     area_responsable = ForeignKeyField(AreaResponsable, backref='obras')
@@ -92,6 +91,11 @@ class Obra(BaseModel):
     empresa = ForeignKeyField(Empresa, backref='obras', null=True)
     expediente_numero = CharField(max_length=80, null=True)
     fuente_financiamiento = ForeignKeyField(FuenteFinanciamiento, backref='obras', null=True)
+    nombre = CharField(max_length=100)
+    direccion = CharField(max_length=255, null=True)
+    licitacion_anio = IntegerField(null=True)
+    monto_contrato = FloatField(null=True)
+
     
     class Meta:
         #Nombre de la tabla. En plural
