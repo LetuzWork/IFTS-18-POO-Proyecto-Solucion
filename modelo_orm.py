@@ -86,7 +86,7 @@ class Obra(BaseModel):
     fecha_fin_inicial = DateField(null=True, default=None)
     porcentaje_avance = FloatField(null=True, default=0.0)
     plazo_meses = IntegerField(null=True)
-    mano_obra = IntegerField(null=True, default=0)
+    mano_obra = FloatField(null=True, default=0)
     etapa = ForeignKeyField(Etapa, backref='obras', null=True)
     tipo_contratacion = ForeignKeyField(TipoContratacion, backref='obras', null=True)
     nro_contratacion = CharField(max_length=80, null=True, default=None)
@@ -94,10 +94,11 @@ class Obra(BaseModel):
     expediente_numero = CharField(max_length=80, null=True, default=None)
     fuente_financiamiento = ForeignKeyField(FuenteFinanciamiento, backref='obras', null=True)
     nombre = CharField(max_length=100)
+    monto_contrato = FloatField(null=True)
 
     # direccion = CharField(max_length=255, null=True)
     # licitacion_anio = IntegerField(null=True)
-    # monto_contrato = FloatField(null=True)
+    
 
     
     class Meta:
@@ -175,11 +176,3 @@ class Obra(BaseModel):
     def rescindir_obra(self):
         self.etapa, _ = Etapa.get_or_create(nombre='Rescindida')
         self.save()
-
-def create_tables():
-    with db:
-        db.create_tables([Empresa, Barrio, TipoContratacion, FuenteFinanciamiento, TipoObra, AreaResponsable, Etapa, Obra])
-
-if __name__ == '__main__':
-    create_tables()
-    print("Tablas creadas exitosamente.")
