@@ -76,6 +76,7 @@ class TipoObra(BaseModel):
         table_name = 'tipo_obras'
 
 class Obra(BaseModel):
+    """Modelo de la tabla Obras."""
     id = AutoField()
     tipo_obra = ForeignKeyField(TipoObra, backref='obras', null=True)
     area_responsable = ForeignKeyField(AreaResponsable, backref='obras', null=True)
