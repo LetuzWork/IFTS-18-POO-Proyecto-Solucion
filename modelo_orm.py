@@ -1,5 +1,6 @@
 from peewee import *
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 db = SqliteDatabase('obras_urbanas.db', pragmas ={'journal_mode' : 'wal'})
 
@@ -13,48 +14,6 @@ class BaseModel(Model):
         #Este modelo ORM usa la base de datos "obras_urbanas.db"
         database = db
 
-class Empresa(BaseModel):
-    id = AutoField()
-    nombre = CharField(max_length=100)
-    cuit = CharField(max_length=20, unique=True)
-
-    class Meta:
-        #Nombre de la tabla. En plural
-        table_name = 'empresas'
-
-class Barrio(BaseModel):
-    id = AutoField()
-    nombre = CharField(max_length=100)
-
-    class Meta:
-        #Nombre de la tabla. En plural
-        table_name = 'barrios'
-
-class TipoContratacion(BaseModel):
-    id = AutoField()
-    nombre = CharField(max_length=100)
-
-    class Meta:
-        #Nombre de la tabla. En plural
-        table_name = 'tipos_contratacion'
-
-class FuenteFinanciamiento(BaseModel):
-    id = AutoField()
-    nombre = CharField(max_length=100)
-
-    class Meta:
-        #Nombre de la tabla. En plural
-        table_name = 'fuentes_financiamiento'
-
-class TipoObra(BaseModel):
-    """Modelo de la tabla TipoObra."""
-    id = AutoField()
-    nombre = CharField(max_length=80)
-    
-    class Meta:
-        #Nombre de la tabla. En plural
-        table_name = 'tipo_obras'
-
 class AreaResponsable(BaseModel):
     """Modelo de la tabla AreaResponsable."""
     id = AutoField()
@@ -63,6 +22,24 @@ class AreaResponsable(BaseModel):
     class Meta:
         #Nombre de la tabla. En plural
         table_name = 'areas_responsables'
+
+class Barrio(BaseModel):
+    id = AutoField()
+    nombre = CharField(max_length=100)
+    comuna = IntegerField(null=True)
+
+    class Meta:
+        #Nombre de la tabla. En plural
+        table_name = 'barrios'
+
+class Empresa(BaseModel):
+    id = AutoField()
+    nombre = CharField(max_length=100)
+    cuit = CharField(max_length=20, unique=True)
+
+    class Meta:
+        #Nombre de la tabla. En plural
+        table_name = 'empresas'
 
 class Etapa(BaseModel):
     """Modelo de la tabla Etapa."""
@@ -73,31 +50,66 @@ class Etapa(BaseModel):
         #Nombre de la tabla. En plural
         table_name = 'etapas'
 
+class FuenteFinanciamiento(BaseModel):
+    id = AutoField()
+    nombre = CharField(max_length=100)
+
+    class Meta:
+        #Nombre de la tabla. En plural
+        table_name = 'fuentes_financiamiento'
+
+class TipoContratacion(BaseModel):
+    id = AutoField()
+    nombre = CharField(max_length=100)
+
+    class Meta:
+        #Nombre de la tabla. En plural
+        table_name = 'tipos_contratacion'
+
+class TipoObra(BaseModel):
+    """Modelo de la tabla TipoObra."""
+    id = AutoField()
+    nombre = CharField(max_length=80)
+    
+    class Meta:
+        #Nombre de la tabla. En plural
+        table_name = 'tipo_obras'
+
 class Obra(BaseModel):
     """Modelo de la tabla Obras."""
     id = AutoField()
-    tipo_obra = ForeignKeyField(TipoObra, backref='obras')
-    area_responsable = ForeignKeyField(AreaResponsable, backref='obras')
-    barrio = ForeignKeyField(Barrio, backref='obras')
-    destacada = BooleanField()
-    fecha_inicio = DateField(null=True)
-    fecha_fin_inicial = DateField(null=True)
-    porcentaje_avance = FloatField(null=True)
+    tipo_obra = ForeignKeyField(TipoObra, backref='obras', null=True)
+    area_responsable = ForeignKeyField(AreaResponsable, backref='obras', null=True)
+    barrio = ForeignKeyField(Barrio, backref='obras', null=True)
+    destacada = BooleanField(default=False)
+    fecha_inicio = DateField(null=True, default=None)
+    fecha_fin_inicial = DateField(null=True, default=None)
+    porcentaje_avance = FloatField(null=True, default=0.0)
     plazo_meses = IntegerField(null=True)
-    mano_obra = IntegerField(null=True)
-    etapa = ForeignKeyField(Etapa, backref='obras')
+    mano_obra = IntegerField(null=True, default=0)
+    etapa = ForeignKeyField(Etapa, backref='obras', null=True)
     tipo_contratacion = ForeignKeyField(TipoContratacion, backref='obras', null=True)
-    nro_contratacion = CharField(max_length=80, null=True)
+    nro_contratacion = CharField(max_length=80, null=True, default=None)
     empresa = ForeignKeyField(Empresa, backref='obras', null=True)
-    expediente_numero = CharField(max_length=80, null=True)
+    expediente_numero = CharField(max_length=80, null=True, default=None)
     fuente_financiamiento = ForeignKeyField(FuenteFinanciamiento, backref='obras', null=True)
+    nombre = CharField(max_length=100)
+
+    # direccion = CharField(max_length=255, null=True)
+    # licitacion_anio = IntegerField(null=True)
+    # monto_contrato = FloatField(null=True)
+
     
     class Meta:
         #Nombre de la tabla. En plural
         table_name = 'obras'
 
-    def nuevo_proyecto(self):
+    def nuevo_proyecto(self, tipo_obra, area_responsable, barrio):
         self.etapa, _ = Etapa.get_or_create(nombre="Proyecto")
+        self.tipo_obra = tipo_obra
+        self.area_responsable = area_responsable
+        self.barrio = barrio
+
         self.save()
 
     def iniciar_contratacion(self, tipo_contratacion, nro_contratacion):
@@ -115,6 +127,11 @@ class Obra(BaseModel):
         self.fecha_inicio = fecha_inicio
         self.fecha_fin_inicial = fecha_fin_inicial
         self.fuente_financiamiento = fuente_financiamiento
+       
+        diferencia = relativedelta(fecha_fin_inicial, fecha_inicio)
+        meses = diferencia.years * 12 + diferencia.months
+        self.plazo_meses = meses
+        
         self.mano_obra = mano_obra
         self.etapa, _ = Etapa.get_or_create(nombre="En Ejecución")
         self.save()
@@ -166,7 +183,3 @@ def create_tables():
 if __name__ == '__main__':
     create_tables()
     print("Tablas creadas exitosamente.")
-
-# orm_db.commit()
-
-#return pd.read_csv(path, sep=";", index_col=0, encoding='latin-1') Solucion de encoding de Maxi para la lectura de bases de datos

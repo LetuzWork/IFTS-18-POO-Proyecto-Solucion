@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv('https://cdn.buenosaires.gob.ar/datosabiertos/datasets/secretaria-general-y-relaciones-internacionales/ba-obras/observatorio-de-obras-urbanas.csv', sep=";", index_col=0, encoding='latin-1')
+df = pd.read_csv('./observatorio-de-obras-urbanas.csv', sep=";", index_col=0, encoding='latin-1')
 
 #print(df.columns[0:34])
 #print(df.describe())
