@@ -47,10 +47,17 @@ class GestionarObra(metaclass=ABCMeta):
     def cargar_datos(cls):
         df = cls.limpiar_datos()
         db = cls.conectar_db()
-        df = df.drop_duplicates(subset='cuit_contratista', keep='first') # Eliminar duplicados por cuit_contratista (A revisar)
-        
+
+        print("Cargando datos de observatorio-de-obras-urbanas.csv...")
         try:
             for _, row in df.iterrows():
+
+                def create_empresa():
+                    try:
+                        return orm.Empresa.get_or_create(nombre=row['licitacion_oferta_empresa'], cuit=row['cuit_contratista'])[0]
+                    except IntegrityError:
+                        return orm.Empresa.get(cuit=row['cuit_contratista'])
+            
             # Crear o obtener instancias de los modelos relacionados
                 area_responsable, _ = orm.AreaResponsable.get_or_create(nombre=row['area_responsable'])
                 barrio, _ = orm.Barrio.get_or_create(nombre=row['barrio'], comuna=row['comuna'])
@@ -58,7 +65,7 @@ class GestionarObra(metaclass=ABCMeta):
                 etapa, _ = orm.Etapa.get_or_create(nombre=row['etapa'])
                 fuente_financiamiento, _ = orm.FuenteFinanciamiento.get_or_create(nombre=row['financiamiento'])
                 tipo_contratacion, _ = orm.TipoContratacion.get_or_create(nombre=row['contratacion_tipo'])
-                empresa, _ = orm.Empresa.get_or_create(nombre=row['licitacion_oferta_empresa'], cuit=row['cuit_contratista'],defaults={'nombre': row['licitacion_oferta_empresa']})
+                empresa = create_empresa()
 
             for _, row in df.iterrows():
                 orm.Obra.create(
