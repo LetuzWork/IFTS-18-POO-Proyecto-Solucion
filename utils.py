@@ -1,14 +1,6 @@
 import numpy as np
 import pandas as pd
 
-def obtener_unicos(df, columnas, nombre_columna_principal):
-    """Obtiene los valores Unicos para normalizar tablas."""
-    df_unicos = df[columnas].fillna('Indeterminado').drop_duplicates(subset=columnas[0]).reset_index(drop=True)
-
-    if(nombre_columna_principal):
-        df_unicos = df_unicos.rename(columns={columnas[0]: nombre_columna_principal})
-    return df_unicos 
-
 def limpiar_texto(df, columna):
     """ Elimina los espacios vacios y convierte a minuscula """
     df[columna] = df[columna].fillna('Indeterminado').str.strip().str.lower()
@@ -33,8 +25,8 @@ def limpiar_columnas(df):
     df['comuna'] = pd.to_numeric(df['comuna'], errors='coerce').fillna(0).astype(int)
 
     # Limpiar fecha_inicio y fecha_fin_inicial
-    df['fecha_inicio'] = pd.to_datetime(df['fecha_inicio'], errors='coerce')
-    df['fecha_fin_inicial'] = pd.to_datetime(df['fecha_fin_inicial'], errors='coerce')
+    df['fecha_inicio'] = df['fecha_inicio'].apply(lambda x: None if pd.isna(x) else x)
+    df['fecha_fin_inicial'] = df['fecha_fin_inicial'].apply(lambda x: None if pd.isna(x) else x)
 
     # Limpiar plazo_meses
     df['plazo_meses'] = pd.to_numeric(df['plazo_meses'], errors='coerce')
@@ -84,25 +76,3 @@ columnas_interes = [
     'contratacion_tipo', 'nro_contratacion', 'mano_obra', 'expediente-numero', 
     'financiamiento'
 ]
-
-df = pd.read_csv('https://cdn.buenosaires.gob.ar/datosabiertos/datasets/secretaria-general-y-relaciones-internacionales/ba-obras/observatorio-de-obras-urbanas.csv', sep=";", index_col=0, encoding='latin-1').reset_index(drop=True)
-
-# Aplicar la limpieza de datos
-df_limpio = limpiar_columnas(df[columnas_interes])
-
-
-def obtener_unicos_para_tablas_normalizadas():
-    # Retornar las listas si es necesario
-    return {
-        'empresas': obtener_unicos(df_limpio,['licitacion_oferta_empresa', 'cuit_contratista'], 'nombre'),
-        'barrios': obtener_unicos(df_limpio,['barrio','comuna'], 'nombre'),
-        'tipos_contratacion': obtener_unicos(df_limpio,['contratacion_tipo'], 'nombre'),
-        'fuentes_financiamiento': obtener_unicos(df_limpio,['financiamiento'], 'nombre'),
-        'tipos_obra': obtener_unicos(df_limpio,['tipo'], 'nombre'),
-        'areas_responsables': obtener_unicos(df_limpio, ['area_responsable'], 'nombre'),
-        'etapas':  obtener_unicos(df_limpio,['etapa'], 'nombre')
-    }
-
-listas_unicas = obtener_unicos_para_tablas_normalizadas()
-print(listas_unicas)
-print(df_limpio.head())
