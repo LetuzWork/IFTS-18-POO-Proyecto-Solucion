@@ -95,30 +95,7 @@ class GestionarObra(metaclass=ABCMeta):
 
     @classmethod
     def nueva_obra(cls):
-        db = cls.conectar_db()
-        cls.mapear_orm()
-        
         try:
-            nombre = input("\nIngrese el nombre de la obra:")
-            monto_contrato = float(input("\nIngrese el monto de contrato:"))
-            fec_inicio = input("\nIngrese la fecha de inicio (YYYY-MM-DD):")
-            fec_final = input("\nIngrese la fecha de finalización (YYYY-MM-DD):")
-            plazo_meses = int(input("\nIngrese el plazo en meses:"))
-            porcentaje_avance = float(input("\nIngrese el porcentaje de avance:"))
-            num_contratacion = input("\nIngrese el número de contratación:")
-            mano_obra = int(input("\nIngrese la cantidad de mano de obra:"))
-            expediente_numero = input("\nIngrese la número de expediente:")
-            
-            destacada = None  
-            while destacada is None:
-                respuesta = input("\nLa obra es destacada? (SI/NO): ").strip().upper()
-                if respuesta == "SI":
-                    destacada = True
-                elif respuesta == "NO":
-                    destacada = False
-                else:
-                    print("Respuesta no válida. Por favor ingrese 'SI' o 'NO'.")
-
 
             def obtener_instancia(tabla, columna, mensaje):
 
@@ -143,58 +120,57 @@ class GestionarObra(metaclass=ABCMeta):
                         try:
                             instancia = tabla.get_or_create(**{columna: valor, columna_secundaria: valor_secundario}) 
                             return instancia[0]
-                        # except tabla.ValueError:
-                        #     instancia = tabla.get_or_create(**{columna: valor, columna_secundaria: int(valor_secundario)}) 
-                        #     return instancia
                         except tabla.DoesNotExist:
                             print(f"No se encontró un registro en {tabla._meta.table_name} con {columna_secundaria}='{valor_secundario}'. Intente nuevamente.")
                     except Exception as e:
                         # Mostrar el tipo de excepción y el mensaje
                         print(f"Se produjo una excepción de tipo: {type(e).__name__}")
 
-            tipo_obra = obtener_instancia(orm.TipoObra, "nombre", "Ingrese el tipo de obra") 
-            area_responsable = obtener_instancia(orm.AreaResponsable, "nombre", "Ingrese el área responsable")
-            etapa = obtener_instancia(orm.Etapa, "nombre", "Ingrese la etapa inicial")
-            tipo_contratacion = obtener_instancia(orm.TipoContratacion, "nombre", "Ingrese el tipo de contratación")
-            fuente_financiamiento = obtener_instancia(orm.FuenteFinanciamiento, "nombre", "Ingrese la fuente de financiamiento")
-            empresa = obtener_instancia_compleja(orm.Empresa, "nombre", "Ingrese el nombre de la empresa", "cuit", "Ingrese el número de CUIT")
-            barrio = obtener_instancia_compleja(orm.Barrio, "nombre", "Ingrese el nombre del barrio", "comuna", "Ingrese el número de la comuna")
-
-            nueva_obra = orm.Obra(
-            nombre=nombre,
-            monto_contrato=monto_contrato,
-            fecha_inicio=fec_inicio,
-            fecha_fin_inicial=fec_final,
-            plazo_meses=plazo_meses,
-            porcentaje_avance=porcentaje_avance,
-            nro_contratacion=num_contratacion,
-            mano_obra=mano_obra,
-            destacada=destacada,
-            expediente_numero=expediente_numero,
-            tipo_obra=tipo_obra,
-            area_responsable=area_responsable,
-            barrio=barrio,
-            etapa=etapa,
-            tipo_contratacion=tipo_contratacion,
-            empresa=empresa,
-            fuente_financiamiento=fuente_financiamiento
-        )
+            nombre = input("\nIngrese el nombre de la obra:")
+            monto_contrato = float(input("\nIngrese el monto de contrato:"))
 
             obra = orm.Obra.create(nombre = nombre, monto_contrato=monto_contrato)
 
+            tipo_obra = obtener_instancia(orm.TipoObra, "nombre", "\nIngrese el tipo de obra") 
+            area_responsable = obtener_instancia(orm.AreaResponsable, "nombre", "\nIngrese el área responsable")
+            barrio = obtener_instancia_compleja(orm.Barrio, "nombre", "\nIngrese el nombre del barrio", "comuna", "\nIngrese el número de la comuna")
+
             obra.nuevo_proyecto(tipo_obra, area_responsable, barrio)
+
+            tipo_contratacion = obtener_instancia(orm.TipoContratacion, "nombre", "\nIngrese el tipo de contratación")
+            num_contratacion = input("\nIngrese el número de contratación:")
 
             obra.iniciar_contratacion(tipo_contratacion, num_contratacion)
 
+            empresa = obtener_instancia_compleja(orm.Empresa, "nombre", "\nIngrese el nombre de la empresa", "cuit", "\nIngrese el número de CUIT")
+            expediente_numero = input("\nIngrese la número de expediente:")
+
             obra.adjudicar_obra(empresa, expediente_numero) 
 
+            fuente_financiamiento = obtener_instancia(orm.FuenteFinanciamiento, "nombre", "\nIngrese la fuente de financiamiento")
+            fec_inicio = input("\nIngrese la fecha de inicio (YYYY-MM-DD):")
+            fec_final = input("\nIngrese la fecha de finalización (YYYY-MM-DD):")
+            mano_obra = int(input("\nIngrese la cantidad de mano de obra:"))
+            
+            destacada = None  
+            while destacada is None:
+                respuesta = input("\nLa obra es destacada? (SI/NO): ").strip().upper()
+                if respuesta == "SI":
+                    destacada = True
+                elif respuesta == "NO":
+                    destacada = False
+                else:
+                    print("Respuesta no válida. Por favor ingrese 'SI' o 'NO'.")
+
             obra.iniciar_obra(destacada, fec_inicio, fec_final, fuente_financiamiento, mano_obra)
+
+            porcentaje_avance = float(input("\nIngrese el porcentaje de avance:"))
 
             obra.actualizar_porcentaje_avance(porcentaje_avance)
 
             accion_final = None
             while accion_final is None:
-                respuesta = input("\n¿Quieres rescindir la obra o darla por finalizada? (SI/NO): ").strip().upper()
+                respuesta = input("\n¿La obra llego a fin o se rescindió? (SI/NO): ").strip().upper()
                 if respuesta == "SI":
                     accion_final = True
                     obra.rescindir_obra()
@@ -283,14 +259,25 @@ class GestionarObra(metaclass=ABCMeta):
 
 if __name__ == '__main__':
     GestionarObra.mapear_orm()
-    GestionarObra.cargar_datos()
+
+    while True:
+        respuesta = input('\nDesea cargar los datos del csv? SI/NO: ').strip().lower()
+
+        if respuesta == 'si':
+            GestionarObra.cargar_datos()
+            break
+        elif respuesta == 'no':
+            break
+        else:
+            print('La respuesta no es valida.\nIngresar la respuesta nuevamente')
+   
     
     while True:
-        respuesta = input('\nDesea crear una nueva instancia de obra? s/n: ')
+        respuesta = input('\nDesea crear una nueva instancia de obra? SI/NO: ').strip().lower()
 
-        if respuesta.lower() == 's':
+        if respuesta == 'si':
             GestionarObra.nueva_obra()
-        elif respuesta.lower() == 'n':
+        elif respuesta == 'no':
             break
         else:
             print('La respuesta no es valida.\nIngresar la respuesta nuevamente')
