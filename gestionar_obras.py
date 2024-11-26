@@ -47,10 +47,43 @@ class GestionarObra(metaclass=ABCMeta):
     def cargar_datos(cls):
         df = cls.limpiar_datos()
         db = cls.conectar_db()
-
-        print("Codigo de Cargado de datos en proceso")
         
-        db.close()
+        try:
+            for _, row in df.iterrows():
+
+            # Crear o obtener instancias de los modelos relacionados
+                area_responsable, _ = orm.AreaResponsable.get_or_create(nombre=row['area_responsable'])
+                barrio, _ = orm.Barrio.get_or_create(nombre=row['barrio'], comuna=row['comuna'])
+                tipo_obra, _ = orm.TipoObra.get_or_create(nombre=row['tipo'])
+                etapa, _ = orm.Etapa.get_or_create(nombre=row['etapa'])
+                fuente_financiamiento, _ = orm.FuenteFinanciamiento.get_or_create(nombre=row['financiamiento'])
+                tipo_contratacion, _ = orm.TipoContratacion.get_or_create(nombre=row['contratacion_tipo'])
+                empresa, _ = orm.Empresa.get_or_create(nombre=row['licitacion_oferta_empresa'], cuit=row['cuit_contratista'])
+
+            orm.Obra.create(
+                tipo_obra=tipo_obra,
+                area_responsable=area_responsable,
+                barrio=barrio,
+                destacada=False,
+                fecha_inicio=row['fecha_inicio'],
+                fecha_fin_inicial=row['fecha_fin_inicial'],
+                porcentaje_avance=row['porcentaje_avance'],
+                plazo_meses=row['plazo_meses'],
+                mano_obra=row['mano_obra'],
+                etapa=etapa,
+                tipo_contratacion=tipo_contratacion,
+                nro_contratacion=row['nro_contratacion'],
+                empresa=empresa,
+                expediente_numero=row['expediente-numero'],
+                fuente_financiamiento=fuente_financiamiento,
+                nombre=row['nombre'],
+                monto_contrato=row['monto_contrato'],
+            )
+            print("Datos cargados exitosamente a la base de datos.")
+        except Exception as e:
+            print(f"Error al cargar datos: {e}")
+        finally:
+            db.close()
 
     @classmethod
     def nueva_obra(cls):
@@ -131,15 +164,15 @@ if __name__ == '__main__':
     GestionarObra.mapear_orm()
     GestionarObra.cargar_datos()
     
-    while True:
-        respuesta = input('\nDesea crear una nueva instancia de obra? s/n: ')
+    # while True:
+    #     respuesta = input('\nDesea crear una nueva instancia de obra? s/n: ')
 
-        if respuesta.lower() == 's':
-            GestionarObra.nueva_obra()
-        elif respuesta.lower() == 'n':
-            break
-        else:
-            print('La respuesta no es valida.\nIngresar la respuesta nuevamente')
+    #     if respuesta.lower() == 's':
+    #         GestionarObra.nueva_obra()
+    #     elif respuesta.lower() == 'n':
+    #         break
+    #     else:
+    #         print('La respuesta no es valida.\nIngresar la respuesta nuevamente')
     
-    print('\nAquí estan los datos solicitados:')
-    GestionarObra.obtener_indicadores()
+    # print('\nAquí estan los datos solicitados:')
+    # GestionarObra.obtener_indicadores()
