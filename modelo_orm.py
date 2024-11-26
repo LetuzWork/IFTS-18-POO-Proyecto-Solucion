@@ -1,5 +1,6 @@
 from peewee import *
 from datetime import timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 db = SqliteDatabase('obras_urbanas.db', pragmas ={'journal_mode' : 'wal'})
@@ -124,11 +125,12 @@ class Obra(BaseModel):
         self.save()
 
     def iniciar_obra(self, destacada, fecha_inicio, fecha_fin_inicial, fuente_financiamiento, mano_obra):
+        fecha_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
+        fecha_fin_inicial = datetime.strptime(fecha_fin_inicial, "%Y-%m-%d").date()
         self.destacada = destacada
         self.fecha_inicio = fecha_inicio
         self.fecha_fin_inicial = fecha_fin_inicial
         self.fuente_financiamiento = fuente_financiamiento
-       
         diferencia = relativedelta(fecha_fin_inicial, fecha_inicio)
         meses = diferencia.years * 12 + diferencia.months
         self.plazo_meses = meses
