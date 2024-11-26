@@ -49,41 +49,31 @@ class GestionarObra(metaclass=ABCMeta):
         db = cls.conectar_db()
 
         print("Cargando datos de observatorio-de-obras-urbanas.csv...")
-        try:
-            for _, row in df.iterrows():
+        try:         
 
+            for _, row in df.iterrows():
                 def create_empresa():
                     try:
                         return orm.Empresa.get_or_create(nombre=row['licitacion_oferta_empresa'], cuit=row['cuit_contratista'])[0]
                     except IntegrityError:
                         return orm.Empresa.get(cuit=row['cuit_contratista'])
-            
-            # Crear o obtener instancias de los modelos relacionados
-                area_responsable, _ = orm.AreaResponsable.get_or_create(nombre=row['area_responsable'])
-                barrio, _ = orm.Barrio.get_or_create(nombre=row['barrio'], comuna=row['comuna'])
-                tipo_obra, _ = orm.TipoObra.get_or_create(nombre=row['tipo'])
-                etapa, _ = orm.Etapa.get_or_create(nombre=row['etapa'])
-                fuente_financiamiento, _ = orm.FuenteFinanciamiento.get_or_create(nombre=row['financiamiento'])
-                tipo_contratacion, _ = orm.TipoContratacion.get_or_create(nombre=row['contratacion_tipo'])
-                empresa = create_empresa()
-
-            for _, row in df.iterrows():
+                    
                 orm.Obra.create(
-                    tipo_obra=tipo_obra,
-                    area_responsable=area_responsable,
-                    barrio=barrio,
+                    tipo_obra= orm.TipoObra.get_or_create(nombre=row['tipo'])[0],
+                    area_responsable= orm.AreaResponsable.get_or_create(nombre=row['area_responsable'])[0],
+                    barrio= orm.Barrio.get_or_create(nombre=row['barrio'], comuna=row['comuna'])[0],
                     destacada=False,
                     fecha_inicio=row['fecha_inicio'],
                     fecha_fin_inicial=row['fecha_fin_inicial'],
                     porcentaje_avance=row['porcentaje_avance'],
                     plazo_meses=row['plazo_meses'],
                     mano_obra=row['mano_obra'],
-                    etapa=etapa,
-                    tipo_contratacion=tipo_contratacion,
+                    etapa= orm.Etapa.get_or_create(nombre=row['etapa'])[0],
+                    tipo_contratacion= orm.TipoContratacion.get_or_create(nombre=row['contratacion_tipo'])[0],
                     nro_contratacion=row['nro_contratacion'],
-                    empresa=empresa,
+                    empresa= create_empresa(),
                     expediente_numero=row['expediente-numero'],
-                    fuente_financiamiento=fuente_financiamiento,
+                    fuente_financiamiento= orm.FuenteFinanciamiento.get_or_create(nombre=row['financiamiento'])[0],
                     nombre=row['nombre'],
                     monto_contrato=row['monto_contrato'],
                 )
