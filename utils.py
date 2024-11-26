@@ -10,7 +10,7 @@ def limpiar_columnas(df):
     """Limpia las columnas del DataFrame."""
 
     # Limpiar las columnas de texto utilizando la nueva función
-    columnas_texto = ['descripcion', 'barrio', 'direccion', 'mano_obra', 'expediente-numero', 'financiamiento']
+    columnas_texto = ['descripcion', 'barrio', 'mano_obra', 'expediente-numero', 'financiamiento']
     for col in columnas_texto:
         df = limpiar_texto(df, col)
     
@@ -63,10 +63,6 @@ def limpiar_columnas(df):
     df.loc[:, 'cuit_contratista'] = df['cuit_contratista'].str.replace(r'[\n;]', ',', regex=True)
     df.loc[:, 'cuit_contratista'] = df['cuit_contratista'].str.replace(r'[^0-9,]', '', regex=True)
 
-    # Limpiar licitacion_anio
-    df.loc[:, 'licitacion_anio'] = df['licitacion_anio'].astype(str)
-    df.loc[:, 'licitacion_anio'] = df['licitacion_anio'].str.replace(r'[^0-9]', '', regex=True)
-
     # Limpiar contratacion_tipo
     df.loc[:, 'contratacion_tipo'] = df['contratacion_tipo'].astype(str)
     df.loc[:, 'contratacion_tipo'] = df['contratacion_tipo'].str.replace('-', '')  # Remover guiones
@@ -76,9 +72,9 @@ def limpiar_columnas(df):
 # Lista de columnas de interés
 columnas_interes = [
     'tipo', 'nombre', 'etapa', 'area_responsable', 'descripcion', 
-    'monto_contrato', 'barrio', 'comuna', 'direccion', 'fecha_inicio', 
+    'monto_contrato', 'barrio', 'comuna', 'fecha_inicio', 
     'fecha_fin_inicial', 'plazo_meses', 'porcentaje_avance', 
-    'licitacion_oferta_empresa', 'cuit_contratista', 'licitacion_anio', 
+    'licitacion_oferta_empresa', 'cuit_contratista',
     'contratacion_tipo', 'nro_contratacion', 'mano_obra', 'expediente-numero', 
     'financiamiento'
 ]

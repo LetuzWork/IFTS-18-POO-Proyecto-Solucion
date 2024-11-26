@@ -97,10 +97,6 @@ class Obra(BaseModel):
     nombre = CharField(max_length=100)
     monto_contrato = FloatField(null=True)
 
-    # direccion = CharField(max_length=255, null=True)
-    # licitacion_anio = IntegerField(null=True)
-    
-
     
     class Meta:
         #Nombre de la tabla. En plural
