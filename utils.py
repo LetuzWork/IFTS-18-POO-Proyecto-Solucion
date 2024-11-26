@@ -3,7 +3,7 @@ import pandas as pd
 
 def limpiar_texto(df, columna):
     """ Elimina los espacios vacios y convierte a minuscula """
-    df[columna] = df[columna].fillna('Indeterminado').str.strip().str.lower()
+    df.loc[:, columna] = df[columna].fillna('Indeterminado').str.strip().str.lower()
     return df
 
 def limpiar_columnas(df):
@@ -15,22 +15,22 @@ def limpiar_columnas(df):
         df = limpiar_texto(df, col)
     
     # Limpiar monto_contrato
-    df['monto_contrato'] = df['monto_contrato'].str.replace(r'[$.]', '', regex=True)  # Reemplaza '$' y '.' por vacíos
-    df['monto_contrato'] = df['monto_contrato'].str.replace(r'(?<=\d),(?=\d{3})', '', regex=True, n=2)  # Elimina comas como separador de miles
-    df['monto_contrato'] = df['monto_contrato'].str.replace(',', '.')  # Reemplaza comas por puntos
-    df['monto_contrato'] = df['monto_contrato'].str.replace(r'\s*\(.*?\)', '', regex=True)  # Elimina contenido entre paréntesis
-    df['monto_contrato'] = df['monto_contrato'].fillna('0.00').str.strip().str.extract(r'[-+]?\$?([\d.,]+)').replace({',': ''}, regex=True).astype(float)  # Extrae valores numéricos
+    df.loc[:, 'monto_contrato'] = df['monto_contrato'].str.replace(r'[$.]', '', regex=True)  # Reemplaza '$' y '.' por vacíos
+    df.loc[:, 'monto_contrato'] = df['monto_contrato'].str.replace(r'(?<=\d),(?=\d{3})', '', regex=True, n=2)  # Elimina comas como separador de miles
+    df.loc[:, 'monto_contrato'] = df['monto_contrato'].str.replace(',', '.')  # Reemplaza comas por puntos
+    df.loc[:, 'monto_contrato'] = df['monto_contrato'].str.replace(r'\s*\(.*?\)', '', regex=True)  # Elimina contenido entre paréntesis
+    df.loc[:, 'monto_contrato'] = df['monto_contrato'].fillna('0.00').str.strip().str.extract(r'[-+]?\$?([\d.,]+)').replace({',': ''}, regex=True).astype(float)  # Extrae valores numéricos
 
     # Limpiar comuna
-    df['comuna'] = pd.to_numeric(df['comuna'], errors='coerce').fillna(0).astype(int)
+    df.loc[:, 'comuna'] = pd.to_numeric(df['comuna'], errors='coerce').fillna(0).astype(int)
 
     # Limpiar fecha_inicio y fecha_fin_inicial
-    df['fecha_inicio'] = df['fecha_inicio'].apply(lambda x: None if pd.isna(x) else x)
-    df['fecha_fin_inicial'] = df['fecha_fin_inicial'].apply(lambda x: None if pd.isna(x) else x)
+    df.loc[:, 'fecha_inicio'] = df['fecha_inicio'].apply(lambda x: None if pd.isna(x) else x)
+    df.loc[:, 'fecha_fin_inicial'] = df['fecha_fin_inicial'].apply(lambda x: None if pd.isna(x) else x)
 
     # Limpiar plazo_meses
-    df['plazo_meses'] = pd.to_numeric(df['plazo_meses'], errors='coerce')
-    df['plazo_meses'] = df['plazo_meses'].fillna(df['plazo_meses'].median()).astype(int)
+    df.loc[:, 'plazo_meses'] = pd.to_numeric(df['plazo_meses'], errors='coerce')
+    df.loc[:, 'plazo_meses'] = df['plazo_meses'].fillna(df['plazo_meses'].median()).astype(int)
 
     # Limpiar porcentaje_avance
     def limpiar_porcentaje(valor):
@@ -46,24 +46,25 @@ def limpiar_columnas(df):
                 return np.nan
         return np.nan
 
-    df['porcentaje_avance'] = df['porcentaje_avance'].apply(limpiar_porcentaje)
-    df['porcentaje_avance'] = df['porcentaje_avance'].clip(0, 100)
+    df.loc[:, 'porcentaje_avance'] = df['porcentaje_avance'].apply(limpiar_porcentaje)
+    df.loc[:, 'porcentaje_avance'] = df['porcentaje_avance'].clip(0, 100)
 
     # Limpiar licitacion_oferta_empresa
-    df['licitacion_oferta_empresa'] = df['licitacion_oferta_empresa'].str.strip()
+    df.loc[:, 'licitacion_oferta_empresa'] = df['licitacion_oferta_empresa'].str.strip()
 
     # Limpiar cuit_contratista
-    df['cuit_contratista'] = df['cuit_contratista'].astype(str)
-    df['cuit_contratista'] = df['cuit_contratista'].str.replace(r'[\n;]', ',', regex=True)
-    df['cuit_contratista'] = df['cuit_contratista'].str.replace(r'[^0-9,]', '', regex=True)
+    df.loc[:, 'cuit_contratista'] = df['cuit_contratista'].astype(str)
+    df.loc[:, 'cuit_contratista'] = df['cuit_contratista'].str.replace(r'[\n;]', ',', regex=True)
+    df.loc[:, 'cuit_contratista'] = df['cuit_contratista'].str.replace(r'[^0-9,]', '', regex=True)
+
 
     # Limpiar licitacion_anio
-    df['licitacion_anio'] = df['licitacion_anio'].astype(str)
-    df['licitacion_anio'] = df['licitacion_anio'].str.replace(r'[^0-9]', '', regex=True)
+    df.loc[:, 'licitacion_anio'] = df['licitacion_anio'].astype(str)
+    df.loc[:, 'licitacion_anio'] = df['licitacion_anio'].str.replace(r'[^0-9]', '', regex=True)
 
     # Limpiar contratacion_tipo
-    df['contratacion_tipo'] = df['contratacion_tipo'].astype(str)
-    df['contratacion_tipo'] = df['contratacion_tipo'].str.replace('-', '')  # Remover guiones
+    df.loc[:, 'contratacion_tipo'] = df['contratacion_tipo'].astype(str)
+    df.loc[:, 'contratacion_tipo'] = df['contratacion_tipo'].str.replace('-', '')  # Remover guiones
 
     return df
 
