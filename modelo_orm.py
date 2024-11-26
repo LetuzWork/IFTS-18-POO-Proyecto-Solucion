@@ -86,7 +86,7 @@ class Obra(BaseModel):
     fecha_inicio = DateField(null=True, default=None)
     fecha_fin_inicial = DateField(null=True, default=None)
     porcentaje_avance = FloatField(null=True, default=0.0)
-    plazo_meses = IntegerField(null=True)
+    plazo_meses = FloatField(null=True)
     mano_obra = FloatField(null=True, default=0)
     etapa = ForeignKeyField(Etapa, backref='obras', null=True)
     tipo_contratacion = ForeignKeyField(TipoContratacion, backref='obras', null=True)
