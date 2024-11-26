@@ -11,3 +11,15 @@ Se añadio pipfile al proyecto para simplificar el inicializado de este, debajo 
 3. Prender Ambiente Virtual `pipenv shell`
 
 luego de ese setup ya deberia estar funcionando y con las librerias encapsuladas para este proyecto
+
+## Get Started
+
+Para comenzar a interactuar con el sistema de gestion de obras basta con ejecutar`
+
+`python gestionar_obras`
+
+En el cual se va a:
+
+1. Cargar la información proveniente de `observatorio-de-obras-urbanas.csv`
+2. Permitirte crear tantas nuevas obras y llevarlas a fin como desees
+3. Permitirte obtener indicadores de tu base de obras urbanas

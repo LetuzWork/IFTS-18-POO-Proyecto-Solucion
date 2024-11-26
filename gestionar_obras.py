@@ -2,12 +2,13 @@ from peewee import *
 import pandas as pd
 from abc import ABCMeta
 import modelo_orm as orm
+from utils import limpiar_columnas, columnas_interes
 
 class GestionarObra(metaclass=ABCMeta):
     @classmethod
     def extraer_datos(cls):
         try:
-            df = pd.read_csv('./observatorio-de-obras-urbanas.csv', sep=';', decimal=',', encoding='latin1', index_col=None)
+            df = pd.read_csv('./observatorio-de-obras-urbanas.csv', sep=";", index_col=0, encoding='latin-1').reset_index(drop=True)
 
             return df
         except FileNotFoundError as e:
@@ -38,95 +39,16 @@ class GestionarObra(metaclass=ABCMeta):
     
     @classmethod
     def limpiar_datos(cls):
-        # El codigo final del archivo limpieza se deberia implementar aca
-        print("En Proceso")
-    
-    # parcialmente laburado en archivo limpieza
+        df = cls.extraer_datos()
+        df = limpiar_columnas(df[columnas_interes])
+        return df
+
     @classmethod
     def cargar_datos(cls):
-        # Codigo a modo de ejemplo se debe borrar y rehacer
         df = cls.limpiar_datos()
         db = cls.conectar_db()
 
-        # Guarda valores unicos en listas para poder cargarlos en las tablas que se relacionan con la tabla obra
-        etapaUnique = list(df['etapa'].unique())
-        tipoObraUnique = list(df['tipo'].unique())
-        areaUnique = list(df['area_responsable'].unique())
-        comunaUnique = list(df['comuna'].unique())
-        barrioUnique = list(df['barrio'].unique())
-        empresaUnique = list(df['licitacion_oferta_empresa'].unique())
-        contratacionUnique = list(df['contratacion_tipo'].unique())
-        financiamientoUnique = list(df['financiamiento'].unique())
-        # // generamos esto con la funcion la funcion de generar unicos en archivo limpieza
-        
-        # // se puede crear una funcion para reducir la repeticion procurando
-        # Cargamos los datos unicos en sus respectivas tablas y los persistimos en el modelo ORM
-        for elem in etapaUnique:
-            try:
-                orm.Etapa.create(estado=elem)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla etapa: {e}')
-
-        for elem in tipoObraUnique:
-            try:
-                orm.TipoObra.create(tipo=elem)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla tipo_obra: {e}')
-
-        for elem in areaUnique:
-            try:
-                orm.AreaResponsable.create(area=elem)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla area_responsable: {e}')
-
-        for elem in comunaUnique:
-            try:
-                orm.Comuna.create(numero=elem)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla comuna: {e}')
-        
-        for elem in barrioUnique:
-            fila = df[df['barrio'] == elem]
-            comuna = fila['comuna'].iloc[0]
-            comuna_id = orm.Comuna.get(orm.Comuna.numero == comuna)
-
-            try:
-                orm.Barrio.create(nombre=elem, comuna_id=comuna_id.id)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla barrio: {e}')
-
-        for elem in empresaUnique:
-            try:
-                orm.Empresa.create(nombre=elem)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla empresa: {e}')
-
-        for elem in contratacionUnique:
-            try:
-                orm.TipoContratacion.create(tipo=elem)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla tipo_contratacion: {e}')
-
-        for elem in financiamientoUnique:
-            try:
-                orm.FuenteFinanciamiento.create(fuente=elem)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla fuente_financiamiento: {e}')
-
-        for elem in df.values:
-            etapa = orm.Etapa.get(orm.Etapa.estado == elem[1])
-            tipoObra = orm.TipoObra.get(orm.TipoObra.tipo == elem[2])
-            areaResp = orm.AreaResponsable.get(orm.AreaResponsable.area == elem[3])
-            comuna = orm.Comuna.get(orm.Comuna.numero == elem[5])
-            barrio = orm.Barrio.get(orm.Barrio.nombre == elem[6])
-            empresa = orm.Empresa.get(orm.Empresa.nombre == elem[11])
-            tipoContr = orm.TipoContratacion.get(orm.TipoContratacion.tipo == elem[12])
-            financiamiento = orm.FuenteFinanciamiento.get(orm.FuenteFinanciamiento.fuente == elem[17])
-            
-            try:
-                orm.Obra.create(nombre=elem[0], monto_contrato=elem[4], fecha_inicio=elem[7], fecha_fin_inicial=elem[8], plazo_meses=elem[9], porcentaje_avance=elem[10], nro_contratacion=elem[13], mano_obra=elem[14], destacada=elem[15], nro_expediente=elem[16], etapa_id=etapa, tipo_obra_id=tipoObra, area_responsable_id=areaResp, comuna_id=comuna, barrio_id=barrio, empresa_id=empresa, tipo_contratacion_id=tipoContr, fuente_financiamiento_id=financiamiento)
-            except IntegrityError as e:
-                print(f'Error al insertar un nuevo registro en la tabla obra: {e}')
+        print("Codigo de Cargado de datos en proceso")
         
         db.close()
 
@@ -206,19 +128,18 @@ class GestionarObra(metaclass=ABCMeta):
             db.close()
 
 if __name__ == '__main__':
-    #GestionarObra().mapear_orm()
-    #GestionarObra().limpiar_datos()
-    #GestionarObra().cargar_datos()
+    GestionarObra.mapear_orm()
+    GestionarObra.cargar_datos()
     
     while True:
-        respuesta = input('\nDesea crear una nueva instancia de obra? (SI/NO): ')
+        respuesta = input('\nDesea crear una nueva instancia de obra? s/n: ')
 
-        if respuesta == 'SI':
-            GestionarObra().nueva_obra()
-        elif respuesta == 'NO':
+        if respuesta.lower() == 's':
+            GestionarObra.nueva_obra()
+        elif respuesta.lower() == 'n':
             break
         else:
             print('La respuesta no es valida.\nIngresar la respuesta nuevamente')
     
     print('\nAquí estan los datos solicitados:')
-    GestionarObra().obtener_indicadores()
+    GestionarObra.obtener_indicadores()
