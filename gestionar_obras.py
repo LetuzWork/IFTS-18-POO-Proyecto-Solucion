@@ -47,10 +47,10 @@ class GestionarObra(metaclass=ABCMeta):
     def cargar_datos(cls):
         df = cls.limpiar_datos()
         db = cls.conectar_db()
+        df = df.drop_duplicates(subset='cuit_contratista', keep='first') # Eliminar duplicados por cuit_contratista (A revisar)
         
         try:
             for _, row in df.iterrows():
-
             # Crear o obtener instancias de los modelos relacionados
                 area_responsable, _ = orm.AreaResponsable.get_or_create(nombre=row['area_responsable'])
                 barrio, _ = orm.Barrio.get_or_create(nombre=row['barrio'], comuna=row['comuna'])
@@ -58,27 +58,28 @@ class GestionarObra(metaclass=ABCMeta):
                 etapa, _ = orm.Etapa.get_or_create(nombre=row['etapa'])
                 fuente_financiamiento, _ = orm.FuenteFinanciamiento.get_or_create(nombre=row['financiamiento'])
                 tipo_contratacion, _ = orm.TipoContratacion.get_or_create(nombre=row['contratacion_tipo'])
-                empresa, _ = orm.Empresa.get_or_create(nombre=row['licitacion_oferta_empresa'], cuit=row['cuit_contratista'])
+                empresa, _ = orm.Empresa.get_or_create(nombre=row['licitacion_oferta_empresa'], cuit=row['cuit_contratista'],defaults={'nombre': row['licitacion_oferta_empresa']})
 
-            orm.Obra.create(
-                tipo_obra=tipo_obra,
-                area_responsable=area_responsable,
-                barrio=barrio,
-                destacada=False,
-                fecha_inicio=row['fecha_inicio'],
-                fecha_fin_inicial=row['fecha_fin_inicial'],
-                porcentaje_avance=row['porcentaje_avance'],
-                plazo_meses=row['plazo_meses'],
-                mano_obra=row['mano_obra'],
-                etapa=etapa,
-                tipo_contratacion=tipo_contratacion,
-                nro_contratacion=row['nro_contratacion'],
-                empresa=empresa,
-                expediente_numero=row['expediente-numero'],
-                fuente_financiamiento=fuente_financiamiento,
-                nombre=row['nombre'],
-                monto_contrato=row['monto_contrato'],
-            )
+            for _, row in df.iterrows():
+                orm.Obra.create(
+                    tipo_obra=tipo_obra,
+                    area_responsable=area_responsable,
+                    barrio=barrio,
+                    destacada=False,
+                    fecha_inicio=row['fecha_inicio'],
+                    fecha_fin_inicial=row['fecha_fin_inicial'],
+                    porcentaje_avance=row['porcentaje_avance'],
+                    plazo_meses=row['plazo_meses'],
+                    mano_obra=row['mano_obra'],
+                    etapa=etapa,
+                    tipo_contratacion=tipo_contratacion,
+                    nro_contratacion=row['nro_contratacion'],
+                    empresa=empresa,
+                    expediente_numero=row['expediente-numero'],
+                    fuente_financiamiento=fuente_financiamiento,
+                    nombre=row['nombre'],
+                    monto_contrato=row['monto_contrato'],
+                )
             print("Datos cargados exitosamente a la base de datos.")
         except Exception as e:
             print(f"Error al cargar datos: {e}")
