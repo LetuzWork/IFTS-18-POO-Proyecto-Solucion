@@ -31,3 +31,32 @@ En el cual se va a:
 1. Cargar la información proveniente de `observatorio-de-obras-urbanas.csv`
 2. Permitirte crear tantas nuevas obras y llevarlas a fin como desees
 3. Permitirte obtener indicadores de tu base de obras urbanas
+
+## Funcionalidades del Módulo `interfaztk.py`
+
+El módulo `interfaztk.py` proporciona una interfaz gráfica de usuario (GUI) para gestionar las obras públicas de la Ciudad de Buenos Aires. A continuación se describen las principales funcionalidades a las que puede acceder el cliente:
+
+### Tabla de Obras
+
+**Visualización de Obras:** La interfaz muestra una tabla con las obras extraídas de la base de datos `obras_urbanas.db`. Las columnas visibles en la tabla son:
+- id
+- nombre
+- barrio
+- comuna
+
+**Selección de Obras:** El cliente puede seleccionar una obra de la tabla haciendo clic en la fila correspondiente. Esta acción permite acceder a más detalles sobre la obra seleccionada.
+
+### Ver Detalles de una Obra
+
+**Detalles de la Obra:** Al seleccionar una obra y hacer clic en el botón "Ver Detalles", se abre una ventana aparte que muestra información detallada sobre la obra seleccionada. La información presentada incluye:
+- Título de la obra
+- Descripción
+- Barrio
+- Comuna
+- Área responsable
+- Monto del contrato
+- Empresa
+- Financiación
+- Si es destacada
+
+Estas funcionalidades permiten al cliente gestionar y visualizar de manera eficiente la información relacionada con las obras públicas de la Ciudad de Buenos Aires.
